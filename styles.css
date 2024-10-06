@@ -1,0 +1,365 @@
+/* style.css */
+
+@font-face {
+    font-family: "Baloo";
+    src: url("assets/fonts/Baloo.ttf");
+}
+
+@font-face {
+    font-family: "Agbalumo";
+    font-weight: bold;
+    src: url("assets/fonts/Agbalumo.ttf");
+}
+
+@font-face {
+    font-family: "Alkatra";
+    src: url("assets/fonts/Alkatra.ttf");
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    height: 75px;
+    text-align: right;
+    background: #FFBB3B url('assets/images/logo.svg') no-repeat center;
+    background-size: 74px 57px;
+}
+
+h1 {
+    font-family: "Agbalumo";
+    font-size: 23px;
+    text-align: center;
+}
+
+#settings,
+#hamburger {
+    height: 25px;
+    border: none;
+    cursor: pointer;
+}
+
+#settings {
+    width: 25px;
+    margin-right: 12px;
+    background: url('assets/images/settings.svg') no-repeat center / contain;
+}
+
+#hamburger {
+    width: 22px;
+    margin-left: 16px;
+    background: url('assets/images/hamburger.svg') no-repeat center / contain;
+}
+
+/* Fullscreen menu styles */
+.fullscreen-menu {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #FFBB3B url('assets/images/logo.svg') no-repeat center 9px;
+    background-size: 74px 57px;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.fullscreen-menu.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#fullscreen-menu .menu-content {
+    font-family: "Agbalumo";
+    font-size: 23px;
+    text-decoration: underline;
+    text-underline-offset: 8px; 
+}
+
+.menu-content {
+    width: 100%;
+    margin-top: 100px;
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    top: 16px;
+    right: 3px;
+    font-size: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-logo {
+    max-width: 150px;
+    margin: 20px auto;
+    display: block;
+}
+
+.menu-links {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-links li {
+    margin: 12px 0;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.menu-links a:hover,
+.menu-links a:active,
+.menu-links a:focus {
+    color: black !important;
+}
+
+.menu-links a {
+    font-size: 24px;
+    color: black;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.menu-links a:hover {
+    color: darkgray;
+}
+
+#menu {
+    position: absolute;
+    top: 65px;
+    z-index: 1;
+    width: calc(100% - 20px);
+    padding: 10px;
+    background: #FFBB3B;
+    border: none;
+    display: none;
+    text-align: center;
+}
+
+#menu.hidden {
+    display: none;
+}
+
+#menu.show {
+    display: block;
+}
+
+#fullscreen-settings h3 {
+    font-family: "Baloo";
+    font-size: 17px;
+    margin-bottom: 0;
+}
+
+#fullscreen-settings h3:first-child {
+    margin-top: 7px;
+}
+
+#fullscreen-settings .menu-content {
+    margin-top: 80px;
+}
+
+.main-content {
+    width: 100%;
+}
+
+button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: url('assets/images/play.svg') no-repeat center / contain;
+    cursor: pointer;
+    outline: none !important;
+    box-shadow: none !important;
+    appearance: none !important;
+    border: none !important;
+    padding: 0 !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+#action-buttons {
+    display: flex;
+    justify-content: center;
+    width: 290px;
+    margin: 100px auto 0;
+}
+
+#action-buttons .button-container:not(:last-child) {
+    margin-right: 40px;
+}
+
+#tone-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 310px;
+    margin: 80px auto 0;
+}
+
+#tone-buttons button {
+    width: 54px;
+    height: 54px;
+    border: 1px solid #AEAEAE !important;
+    background: transparent;
+    font-family: "Alkatra";
+    font-size: 20px;
+    margin: 16px 16px 0 0;
+}
+
+#tone-buttons button:nth-child(4n) {
+    margin-right: 0;
+}
+
+#tone-checkboxes {
+    max-width: 320px;
+    margin: 0 auto;
+    padding-left: 15px;
+    text-align: left;
+}
+
+#tone-checkboxes label {
+    width: 54px;
+    text-align: left;
+}
+
+#tone-checkboxes input,
+#octave-checkboxes input {
+    appearance: none;
+    margin-right: 5px;
+}
+
+#tone-checkboxes input:before,
+#octave-checkboxes input:before {
+    content: '';
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    border: 2px solid #000;
+    border-radius: 3px;
+}
+
+#tone-checkboxes input:checked:before,
+#octave-checkboxes input:checked:before {
+    background: url("assets/images/check.svg") no-repeat center;
+    background-size: 13px 10px;
+}
+
+#tone-checkboxes label:not(:last-child),
+#octave-checkboxes label:not(:last-child) {
+    margin-right: 5px;
+}
+
+#tone-checkboxes label,
+#octave-checkboxes label {
+    display: inline-flex;
+    align-items: flex-start;
+    margin-top: 7px;
+    font-family: "Baloo";
+    font-size: 15px;
+    text-wrap: nowrap;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    font-family: "Baloo";
+    font-size: 13px;
+    text-align: center;
+}
+
+.button-container label {
+    position: absolute;
+    top: 53px;
+    line-height: 1;
+    text-wrap: nowrap;
+}
+
+#repeatSameButton {
+    background-image: url('assets/images/repeat.svg');
+}
+
+#repeatRandomButton {
+    background-image: url('assets/images/random.svg');
+}
+
+/* Colors for the guessing buttons */
+button.correct {
+    background-color: #36d147 !important;
+    color: white;
+}
+
+button.incorrect {
+    background-color: #ff5353 !important;
+    color: white;
+}
+
+
+/* Hide default appearance of the range input */
+input[type="range"] {
+    -webkit-appearance: none; /* Safari */
+    appearance: none;
+    width: 200px; /* Full width */
+    height: 8px; /* Height of the track */
+    margin-top: 15px;
+    background: transparent; /* Color of the track */
+    border-radius: 5px; /* Rounded corners for the track */
+    outline: none; /* Remove the outline */
+}
+
+/* Style the track */
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 12px; /* Height of the track */
+    border: 3px solid #000;
+    border-radius: 5px; /* Rounded corners */
+}
+
+/* Style the track for Firefox */
+input[type="range"]::-moz-range-track {
+    width: 100%;
+    height: 12px; /* Height of the track */
+    border: 3px solid #000;
+    border-radius: 5px; /* Rounded corners */
+}
+
+/* Style the thumb (the circular part) */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none;
+    width: 22px; /* Width of the thumb */
+    height: 22px; /* Height of the thumb */
+    border-radius: 50%; /* Make it circular */
+    background: #000; /* Color of the thumb */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-top: -8px; /* Center the thumb on the track */
+}
+
+/* Style the thumb for Firefox */
+input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none;
+    width: 22px; /* Width of the thumb */
+    height: 22px; /* Height of the thumb */
+    border-radius: 50%; /* Make it circular */
+    background: #000; /* Color of the thumb */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-top: -8px; /* Center the thumb on the track */
+}
