@@ -4,6 +4,7 @@ let lastPlayedAudio;
 let lastPlayedNote;
 let lastPlayedOctave;
 let isGuessing = false;
+let activeTimers = {}; // Store individual timers for each note
 
 function preloadAudio() {
     const notes = ['C', 'CSharp', 'D', 'DSharp', 'E', 'F', 'FSharp', 'G', 'GSharp', 'A', 'ASharp', 'B'];
@@ -64,7 +65,7 @@ function saveSelections() {
     const selectedOctaves = Array.from(octaveCheckboxes)
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
-    
+
     localStorage.setItem('selectednotes', JSON.stringify(selectednotes));
     localStorage.setItem('selectedOctaves', JSON.stringify(selectedOctaves));
 }
@@ -118,14 +119,19 @@ function playRandomOctave(note) {
         randomAudio.pause();
         randomAudio.currentTime = 0;
 
-        const duration = audioDurationSlider.value; 
+        const duration = audioDurationSlider.value;
 
         const buttonToHighlight = document.querySelector(`button[data-note="${note}"]`);
         buttonToHighlight.classList.add('playing');
 
+        // Clear existing timer for this note if it exists
+        if (activeTimers[note]) {
+            clearTimeout(activeTimers[note]);
+        }
+
         playAudioWithDuration(randomAudio, duration);
 
-        setTimeout(() => {
+        activeTimers[note] = setTimeout(() => {
             buttonToHighlight.classList.remove('playing');
         }, duration * 1000);
     }
@@ -241,7 +247,7 @@ if (repeatRandomButton) {
 
             const randomOctaveIndex = randomOctave - 2;
 
-            const randomAudio = noteAudios[randomOctaveIndex];        
+            const randomAudio = noteAudios[randomOctaveIndex];
             const duration = audioDurationSlider.value;
             playAudioWithDuration(randomAudio, duration);
         }
@@ -265,10 +271,18 @@ function checkGuess(guessedNote, button) {
     isGuessing = false;
 }
 
+// Event listeners for the explore notes buttons
 document.querySelectorAll('.note-button').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
         const note = this.getAttribute('data-note');
-        playRandomOctave(note); 
+        const selectedNotes = Array.from(noteCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+
+        // Only play if the note is selected
+        if (selectedNotes.includes(note)) {
+            playRandomOctave(note);
+        }
     });
 });
 
@@ -277,7 +291,7 @@ const sliderValueDisplay = document.getElementById('slider-value');
 
 function restoreAudioDuration() {
     const savedDuration = localStorage.getItem('audioDuration');
-    const defaultDuration = 3; 
+    const defaultDuration = 3;
 
     if (savedDuration) {
         audioDurationSlider.value = savedDuration;
@@ -289,7 +303,7 @@ function restoreAudioDuration() {
     }
 }
 
-audioDurationSlider.addEventListener('input', function() {
+audioDurationSlider.addEventListener('input', function () {
     sliderValueDisplay.textContent = this.value;
     localStorage.setItem('audioDuration', this.value);
 });

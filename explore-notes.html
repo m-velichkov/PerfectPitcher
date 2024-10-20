@@ -61,7 +61,72 @@
         <div id="note-buttons">
             <button class="note-button" data-note="C">C</button>
             <button class="note-button" data-note="CSharp">C#</button>
-            <button class="note-button" data-note="D">D</button>
+            <button class="note-button" data-note="D">D</button><!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Explore notes</title>
+                <link rel="stylesheet" href="styles.css">
+                <link rel="manifest" href="manifest.json">
+            </head>
+            <body>
+                <div class="header">
+                    <button id="hamburger"></button>
+                    <div id="fullscreen-menu" class="fullscreen-menu hidden">
+                        <div class="menu-content">
+                            <button id="close-menu" class="close-btn">&times;</button>
+                            <ul class="menu-links">
+                                <li><a href="index.html">Identify Notes</a></li>
+                                <li><a href="explore-notes.html">Explore Notes</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button id="settings"></button>
+                    <div id="fullscreen-settings" class="fullscreen-menu hidden">
+                        <div class="menu-content">
+                            <button id="close-settings" class="close-btn">&times;</button>
+                            <h3>Select Notes</h3>
+                            <div id="note-checkboxes">
+                                <label><input type="checkbox" value="C" checked> Do</label>
+                                <label><input type="checkbox" value="CSharp" checked> Do#</label>
+                                <label><input type="checkbox" value="D" checked> Re</label>
+                                <label><input type="checkbox" value="DSharp" checked> Re#</label>
+                                <label><input type="checkbox" value="E" checked> Mi</label>
+                                <label><input type="checkbox" value="F" checked> Fa</label>
+                                <label><input type="checkbox" value="FSharp" checked> Fa#</label>
+                                <label><input type="checkbox" value="G" checked> Sol</label>
+                                <label><input type="checkbox" value="GSharp" checked> Sol#</label>
+                                <label><input type="checkbox" value="A" checked> La</label>
+                                <label><input type="checkbox" value="ASharp" checked> La#</label>
+                                <label><input type="checkbox" value="B" checked> Si</label>
+                            </div>
+            
+                            <h3>Select Octaves</h3>
+                            <div id="octave-checkboxes">
+                                <label><input type="checkbox" value="2" checked>2</label>
+                                <label><input type="checkbox" value="3" checked>3</label>
+                                <label><input type="checkbox" value="4" checked>4</label>
+                                <label><input type="checkbox" value="5" checked>5</label>
+                                <label><input type="checkbox" value="6" checked>6</label>
+                            </div>
+            
+                            <h3>Set Audio Duration</h3>
+                            <label for="audio-duration-slider">note Play Time: <span id="slider-value">3</span> seconds</label>
+                            <input type="range" id="audio-duration-slider" min="1" max="10" value="3" step="1">
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="main-content">
+                    <h1>Explore notes</h1>
+                    <div id="note-buttons"></div> <!-- Note buttons will be dynamically added -->
+                </div>
+            
+                <script src="main.js"></script>
+            </body>
+            </html>
+            
             <button class="note-button" data-note="DSharp">D#</button>
             <button class="note-button" data-note="E">E</button>
             <button class="note-button" data-note="F">F</button>
