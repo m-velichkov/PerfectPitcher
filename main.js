@@ -6,6 +6,14 @@ let lastPlayedOctave;
 let isGuessing = false;
 let activeTimers = {}; // Store individual timers for each note
 
+// Selectors for checkboxes
+let noteCheckboxes;
+let octaveCheckboxes;
+
+let correctGuesses = 0;
+let overallTries = 0;
+
+// Preload audio files
 function preloadAudio() {
     const notes = ['C', 'CSharp', 'D', 'DSharp', 'E', 'F', 'FSharp', 'G', 'GSharp', 'A', 'ASharp', 'B'];
     const octaves = ['2', '3', '4', '5', '6'];
@@ -21,80 +29,142 @@ function preloadAudio() {
     });
 }
 
+// Initialize when the window loads
 window.onload = () => {
-    restoreSelections();
     preloadAudio();
+    noteCheckboxes = document.querySelectorAll('#note-checkboxes input[type="checkbox"]');
+    octaveCheckboxes = document.querySelectorAll('#octave-checkboxes input[type="checkbox"]');
+    restoreSelections();
     restoreAudioDuration();
+    initializeNoteButtons(); // Initialize note buttons on load
+    addEventListeners();
 };
 
-const hamburgerButton = document.getElementById('hamburger');
-const fullscreenMenu = document.getElementById('fullscreen-menu');
-const closeMenuButton = document.getElementById('close-menu');
+function addEventListeners() {
+    const hamburgerButton = document.getElementById('hamburger');
+    const fullscreenMenu = document.getElementById('fullscreen-menu');
+    const closeMenuButton = document.getElementById('close-menu');
 
-const settingsButton = document.getElementById('settings');
-const fullscreenSettings = document.getElementById('fullscreen-settings');
-const closeSettingsButton = document.getElementById('close-settings');
+    const settingsButton = document.getElementById('settings');
+    const fullscreenSettings = document.getElementById('fullscreen-settings');
+    const closeSettingsButton = document.getElementById('close-settings');
 
-hamburgerButton.addEventListener('click', function () {
-    fullscreenMenu.classList.add('show');
-});
+    const playButton = document.getElementById('playButton');
+    const repeatSameButton = document.getElementById('repeatSameButton');
+    const repeatRandomButton = document.getElementById('repeatRandomButton');
+    const noteButtonsContainer = document.getElementById('note-buttons');
+    
+    hamburgerButton.addEventListener('click', function () {
+        fullscreenMenu.classList.add('show');
+    });
 
-closeMenuButton.addEventListener('click', function () {
-    fullscreenMenu.classList.remove('show');
-});
+    closeMenuButton.addEventListener('click', function () {
+        fullscreenMenu.classList.remove('show');
+    });
 
-settingsButton.addEventListener('click', function () {
-    fullscreenSettings.classList.add('show');
-});
+    settingsButton.addEventListener('click', function () {
+        fullscreenSettings.classList.add('show');
+    });
 
-closeSettingsButton.addEventListener('click', function () {
-    fullscreenSettings.classList.remove('show');
-});
+    closeSettingsButton.addEventListener('click', function () {
+        fullscreenSettings.classList.remove('show');
+    });
 
-const playButton = document.getElementById('playButton');
-const repeatSameButton = document.getElementById('repeatSameButton');
-const repeatRandomButton = document.getElementById('repeatRandomButton');
-const noteButtonsContainer = document.getElementById('note-buttons');
-const noteCheckboxes = document.querySelectorAll('#note-checkboxes input[type="checkbox"]');
-const octaveCheckboxes = document.querySelectorAll('#octave-checkboxes input[type="checkbox"]');
+    noteCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', saveSelections);
+    });
 
-function saveSelections() {
-    const selectednotes = Array.from(noteCheckboxes)
-        .filter(checkbox => checkbox.checked)
-        .map(checkbox => checkbox.value);
-    const selectedOctaves = Array.from(octaveCheckboxes)
-        .filter(checkbox => checkbox.checked)
-        .map(checkbox => checkbox.value);
+    octaveCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', saveSelections);
+    });
 
-    localStorage.setItem('selectednotes', JSON.stringify(selectednotes));
-    localStorage.setItem('selectedOctaves', JSON.stringify(selectedOctaves));
-}
-
-function restoreSelections() {
-    const savednotes = JSON.parse(localStorage.getItem('selectednotes'));
-    const savedOctaves = JSON.parse(localStorage.getItem('selectedOctaves'));
-
-    if (savednotes) {
-        noteCheckboxes.forEach(checkbox => {
-            checkbox.checked = savednotes.includes(checkbox.value);
+    if (playButton) {
+        playButton.addEventListener('click', function () {
+            noteButtonsContainer.innerHTML = ''; // Clear existing buttons
+    
+            const selectedNotes = Array.from(noteCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+    
+            const selectedOctaves = Array.from(octaveCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => parseInt(checkbox.value, 10));
+    
+            if (selectedNotes.length === 0 || selectedOctaves.length === 0) {
+                alert("Please select at least one note and one octave.");
+                return;
+            }
+    
+            selectedNotes.forEach(note => {
+                const button = document.createElement('button');
+                button.textContent = noteToSolfègeMap[note] || note;
+                button.dataset.note = note;
+                noteButtonsContainer.appendChild(button);
+                button.addEventListener('click', () => checkGuess(note, button));
+            });
+    
+            // Pick a random note and a random octave
+            randomNote = selectedNotes[Math.floor(Math.random() * selectedNotes.length)];
+            const noteAudios = audioCache[randomNote];
+    
+            const randomOctave = selectedOctaves[Math.floor(Math.random() * selectedOctaves.length)];
+            const octaveIndex = randomOctave - 2;
+    
+            // Create a new audio instance for the last played note
+            lastPlayedAudio = new Audio(noteAudios[octaveIndex].src); // Create a new instance directly from the source
+            lastPlayedNote = randomNote;
+            lastPlayedOctave = octaveIndex;
+    
+            const duration = audioDurationSlider.value;
+            playAudioWithDuration(lastPlayedAudio, duration);
+    
+            isGuessing = true; // Enable guessing mode
         });
     }
-
-    if (savedOctaves) {
-        octaveCheckboxes.forEach(checkbox => {
-            checkbox.checked = savedOctaves.includes(checkbox.value);
+    
+    if (repeatSameButton) {
+        repeatSameButton.addEventListener('click', function () {
+            if (lastPlayedNote) {
+                const noteAudios = audioCache[lastPlayedNote];
+                if (noteAudios && noteAudios.length > 0) {
+                    const sameNoteAudio = new Audio(lastPlayedAudio.src); // Create a new instance directly from the source
+    
+                    const duration = audioDurationSlider.value;
+                    playAudioWithDuration(sameNoteAudio, duration); // Play the new instance
+                }
+            }
+        });
+    }
+    
+    if (repeatRandomButton) {
+        repeatRandomButton.addEventListener('click', function () {
+            if (lastPlayedNote) {
+                // Call the existing playRandomOctave function with the last played note and set highlight to false
+                playRandomOctave(lastPlayedNote, false);
+            }
         });
     }
 }
 
-noteCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', saveSelections);
-});
+// Initialize buttons for exploring notes
+function initializeNoteButtons() {
+    const noteButtonsContainer = document.getElementById('note-buttons');
+    noteButtonsContainer.innerHTML = ''; // Clear existing buttons
 
-octaveCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', saveSelections);
-});
+    const selectedNotes = Array.from(noteCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
 
+    selectedNotes.forEach(note => {
+        const exploreButton = document.createElement('button');
+        exploreButton.textContent = noteToSolfègeMap[note] || note;
+        exploreButton.dataset.note = note;
+        noteButtonsContainer.appendChild(exploreButton);
+        exploreButton.addEventListener('click', () => playRandomOctave(note));
+    });
+}
+
+// Map notes to solfège
 const noteToSolfègeMap = {
     'C': 'Do',
     'CSharp': 'Do#',
@@ -110,76 +180,72 @@ const noteToSolfègeMap = {
     'B': 'Si'
 };
 
-function playRandomOctave(note) {
+// Save selected notes and octaves to local storage
+function saveSelections() {
+    const selectedNotes = Array.from(noteCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+    const selectedOctaves = Array.from(octaveCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+
+    localStorage.setItem('selectedNotes', JSON.stringify(selectedNotes));
+    localStorage.setItem('selectedOctaves', JSON.stringify(selectedOctaves));
+}
+
+// Restore selections from local storage
+function restoreSelections() {
+    const savedNotes = JSON.parse(localStorage.getItem('selectedNotes'));
+    const savedOctaves = JSON.parse(localStorage.getItem('selectedOctaves'));
+
+    if (savedNotes) {
+        noteCheckboxes.forEach(checkbox => {
+            checkbox.checked = savedNotes.includes(checkbox.value);
+        });
+    }
+
+    if (savedOctaves) {
+        octaveCheckboxes.forEach(checkbox => {
+            checkbox.checked = savedOctaves.includes(checkbox.value);
+        });
+    }
+}
+
+// Play a random octave of the given note
+function playRandomOctave(note, highlight = true) {
     const noteAudios = audioCache[note];
     if (noteAudios && noteAudios.length > 0) {
         const randomIndex = Math.floor(Math.random() * noteAudios.length);
-        const randomAudio = noteAudios[randomIndex];
+        const randomAudio = new Audio(noteAudios[randomIndex].src); // Create a new instance from the source
 
+        // Reset the audio
         randomAudio.pause();
         randomAudio.currentTime = 0;
 
         const duration = audioDurationSlider.value;
 
-        const buttonToHighlight = document.querySelector(`button[data-note="${note}"]`);
-        buttonToHighlight.classList.add('playing');
+        if (highlight) {
+            // Highlight the button for the note
+            const buttonToHighlight = document.querySelector(`button[data-note="${note}"]`);
+            buttonToHighlight.classList.add('playing');
 
-        // Clear existing timer for this note if it exists
-        if (activeTimers[note]) {
-            clearTimeout(activeTimers[note]);
+            // Clear previous timer for the highlight
+            if (activeTimers[note]) {
+                clearTimeout(activeTimers[note]);
+            }
+
+            // Set a timer to remove the highlight after the duration
+            activeTimers[note] = setTimeout(() => {
+                buttonToHighlight.classList.remove('playing');
+            }, duration * 1000);
         }
 
         playAudioWithDuration(randomAudio, duration);
-
-        activeTimers[note] = setTimeout(() => {
-            buttonToHighlight.classList.remove('playing');
-        }, duration * 1000);
     }
 }
 
-if (playButton) {
-    playButton.addEventListener('click', function () {
-        noteButtonsContainer.innerHTML = '';
 
-        const selectedNotes = Array.from(noteCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.value);
-
-        const selectedOctaves = Array.from(octaveCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => parseInt(checkbox.value, 10));
-
-        if (selectedNotes.length === 0 || selectedOctaves.length === 0) {
-            alert("Please select at least one note and one octave.");
-            return;
-        }
-
-        selectedNotes.forEach(note => {
-            const button = document.createElement('button');
-            button.textContent = noteToSolfègeMap[note] || note;
-            button.dataset.note = note;
-            noteButtonsContainer.appendChild(button);
-            button.addEventListener('click', () => checkGuess(note, button));
-        });
-
-        randomNote = selectedNotes[Math.floor(Math.random() * selectedNotes.length)];
-        const noteAudios = audioCache[randomNote];
-
-        const randomOctave = selectedOctaves[Math.floor(Math.random() * selectedOctaves.length)];
-
-        const octaveIndex = randomOctave - 2;
-
-        lastPlayedAudio = noteAudios[octaveIndex];
-        lastPlayedNote = randomNote;
-        lastPlayedOctave = octaveIndex;
-
-        const duration = audioDurationSlider.value;
-        playAudioWithDuration(lastPlayedAudio, duration);
-
-        isGuessing = true;
-    });
-}
-
+// Fade out the audio
 function fadeOutAudio(audio, duration) {
     const fadeOutInterval = 50;
     const fadeOutSteps = duration * 1000 / fadeOutInterval;
@@ -200,92 +266,52 @@ function fadeOutAudio(audio, duration) {
 
 function playAudioWithDuration(audio, duration) {
     if (audio) {
-        audio.currentTime = 0;
-        audio.play();
-
-        const fadeOutDuration = 1;
-        const playbackDuration = duration - fadeOutDuration;
-
-        setTimeout(() => {
-            fadeOutAudio(audio, fadeOutDuration);
-        }, playbackDuration * 1000);
-
-        setTimeout(() => {
-            audio.pause();
-            audio.currentTime = 0;
-            audio.volume = 1;
-        }, duration * 1000);
+        audio.play();  // Start playing the audio immediately
+        fadeOutAudio(audio, duration);  // Start fading out without waiting
     } else {
         console.error("No audio to play!");
     }
 }
 
-if (repeatSameButton) {
-    repeatSameButton.addEventListener('click', function () {
-        if (lastPlayedAudio) {
-            const duration = audioDurationSlider.value;
-            playAudioWithDuration(lastPlayedAudio, duration);
-        }
-    });
-}
-
-if (repeatRandomButton) {
-    repeatRandomButton.addEventListener('click', function () {
-        if (lastPlayedNote) {
-            const noteAudios = audioCache[lastPlayedNote];
-
-            const selectedOctaves = Array.from(octaveCheckboxes)
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => parseInt(checkbox.value, 10));
-
-            if (selectedOctaves.length === 0) {
-                alert("Please select at least one octave.");
-                return;
-            }
-
-            const randomOctave = selectedOctaves[Math.floor(Math.random() * selectedOctaves.length)];
-
-            const randomOctaveIndex = randomOctave - 2;
-
-            const randomAudio = noteAudios[randomOctaveIndex];
-            const duration = audioDurationSlider.value;
-            playAudioWithDuration(randomAudio, duration);
-        }
-    });
-}
-
+// Check the player's guess
 function checkGuess(guessedNote, button) {
     if (!isGuessing) return;
 
+    overallTries++; // Increment overall tries
+    const allButtons = document.querySelectorAll('#note-buttons button');
+
     if (guessedNote === randomNote) {
         button.classList.add('correct');
+        correctGuesses++; // Increment correct guesses
     } else {
         button.classList.add('incorrect');
         const correctButton = document.querySelector(`button[data-note="${randomNote}"]`);
         correctButton.classList.add('correct');
     }
 
-    const allButtons = document.querySelectorAll('#note-buttons button');
     allButtons.forEach(btn => btn.disabled = true);
-
     isGuessing = false;
+
+    // Update the counter display
+    updateCounterDisplay();
 }
 
-// Event listeners for the explore notes buttons
-document.querySelectorAll('.note-button').forEach(button => {
-    button.addEventListener('click', function () {
-        const note = this.getAttribute('data-note');
-        const selectedNotes = Array.from(noteCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.value);
+function updateCounterDisplay() {
+    const counterDisplay = document.getElementById('counter-display');
+    counterDisplay.textContent = `Guessed: ${correctGuesses} / Overall: ${overallTries}`;
+}
 
-        // Only play if the note is selected
-        if (selectedNotes.includes(note)) {
-            playRandomOctave(note);
-        }
+const resetCounterButton = document.getElementById('reset-counter');
+
+if (resetCounterButton) {
+    resetCounterButton.addEventListener('click', function () {
+        correctGuesses = 0;
+        overallTries = 0;
+        updateCounterDisplay(); // Update display to reflect reset
     });
-});
+}
 
+// Audio duration slider functionality
 const audioDurationSlider = document.getElementById('audio-duration-slider');
 const sliderValueDisplay = document.getElementById('slider-value');
 
@@ -303,9 +329,11 @@ function restoreAudioDuration() {
     }
 }
 
+// Update slider value and save it to local storage
 audioDurationSlider.addEventListener('input', function () {
     sliderValueDisplay.textContent = this.value;
     localStorage.setItem('audioDuration', this.value);
 });
 
+// Call this function to initialize audio duration
 restoreAudioDuration();

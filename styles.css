@@ -357,3 +357,18 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
     margin-top: -8px;
 }
+
+#reset-counter {
+    display: block;
+    width: auto;
+    margin: 15px auto 0;
+    font-size: 17px;
+    font-weight: bold;
+    background: none;
+}
+
+#counter-display {
+    display: block;
+    margin-right: 18px;
+    text-align: right;
+}

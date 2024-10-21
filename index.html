@@ -51,12 +51,14 @@
                 <h3>Set Audio Duration</h3>
                 <label for="audio-duration-slider">note Play Time: <span id="slider-value">3</span> seconds</label>
                 <input type="range" id="audio-duration-slider" min="1" max="10" value="3" step="1">
+                <button id="reset-counter">Reset Counter</button>
             </div>
         </div>
     </div>
 
     <div class="main-content">
         <h1>Identify notes</h1>
+        <div id="counter-display">Guessed: 0 / Overall: 0</div>
         <div id="action-buttons">
             <div class="button-container"><button id="playButton"></button><label>Play next</label></div>
             <div class="button-container"><button id="repeatSameButton"></button><label>Repeat</label></div>
