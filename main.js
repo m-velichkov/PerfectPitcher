@@ -214,9 +214,24 @@ function restoreSelections() {
 // Play a random octave of the given note
 function playRandomOctave(note, highlight = true) {
     const noteAudios = audioCache[note];
+    
+    // Get the selected octaves from checkboxes
+    const selectedOctaves = Array.from(octaveCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => parseInt(checkbox.value, 10));
+
+    if (selectedOctaves.length === 0) {
+        alert("Please select at least one octave.");
+        return;
+    }
+
     if (noteAudios && noteAudios.length > 0) {
-        const randomIndex = Math.floor(Math.random() * noteAudios.length);
-        const randomAudio = new Audio(noteAudios[randomIndex].src); // Create a new instance from the source
+        // Pick a random octave from the selected octaves
+        const randomOctave = selectedOctaves[Math.floor(Math.random() * selectedOctaves.length)];
+        const octaveIndex = randomOctave - 2;
+
+        // Create a new instance from the source of the audio in the selected octave
+        const randomAudio = new Audio(noteAudios[octaveIndex].src); 
 
         // Reset the audio
         randomAudio.pause();
@@ -240,6 +255,7 @@ function playRandomOctave(note, highlight = true) {
             }, duration * 1000);
         }
 
+        // Play the new audio instance with duration
         playAudioWithDuration(randomAudio, duration);
     }
 }
